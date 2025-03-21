@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1086993802258",
+    "project_id": "halopet-f70c7",
+    "storage_bucket": "halopet-f70c7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1086993802258:android:a23855dcffb69cf1e1e4cb",
+        "android_client_info": {
+          "package_name": "com.example.halo_pet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1086993802258-cfsbei810eukpqh6vp59hh66mufv2vfi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.halo_pet",
+            "certificate_hash": "dc506a8e5ac57e491e2155a1ef3fd5311f854407"
+          }
+        },
+        {
+          "client_id": "1086993802258-p9opk652q2cqtg18vv9lcd18jfua0f2c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7pslxdu_edXxEWXPEGs3KzeFziu-XBQA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1086993802258-p9opk652q2cqtg18vv9lcd18jfua0f2c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

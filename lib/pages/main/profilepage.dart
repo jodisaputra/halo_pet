@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../services/auth_service.dart';
+import '../login_pages/login_page.dart';
 
 class Profilepage extends StatefulWidget {
   const Profilepage({super.key});
@@ -34,10 +37,51 @@ class _ProfilepageState extends State<Profilepage> {
     }
   }
 
+  // Function to handle logout
+  Future<void> _logout() async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final result = await authService.logout();
+
+    // Navigate to login screen using MaterialPageRoute instead of named route
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+    );
+
+    // Still show a message if there was an error for debugging purposes
+    if (!result['success']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message']))
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Get the current user from AuthService
+    final authService = Provider.of<AuthService>(context);
+    final currentUser = authService.currentUser;
+
     return Scaffold(
       backgroundColor: const Color(0xFFE9F0FE),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false, // This removes the back button
+        title: const Text(
+          'My Profile',
+          style: TextStyle(
+            color: Color(0xFF0601B4),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          // Add logout button to app bar
+          IconButton(
+            onPressed: _logout,
+            icon: const Icon(Icons.logout, color: Color(0xFF0601B4)),
+          ),
+        ],
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(30),
@@ -66,16 +110,18 @@ class _ProfilepageState extends State<Profilepage> {
                   ],
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
+              // Display the current user's name instead of static "Username"
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Text(
-                  "Username",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  currentUser?.name ?? "Username",
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
-              const Text(
-                "username@gmail.com",
-                style: TextStyle(color: Colors.grey),
+              // Display the current user's email instead of static email
+              Text(
+                currentUser?.email ?? "username@gmail.com",
+                style: const TextStyle(color: Colors.grey),
               ),
               const Padding(
                 padding: EdgeInsets.only(top: 40, bottom: 20),
@@ -158,9 +204,9 @@ class _ProfilepageState extends State<Profilepage> {
                           borderRadius: BorderRadius.circular(14)),
                       child: const Center(
                           child: Text(
-                        "Update Profile",
-                        style: TextStyle(color: Colors.white, fontSize: 14),
-                      )),
+                            "Update Profile",
+                            style: TextStyle(color: Colors.white, fontSize: 14),
+                          )),
                     ),
                   ),
                 ),
