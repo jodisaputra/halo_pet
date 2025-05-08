@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:halo_pet/pages/home_pages/home_page.dart';
 import 'package:halo_pet/pages/login_pages/register_page.dart';
 import 'package:halo_pet/pages/login_pages/forgot_password_page.dart';
+import 'package:halo_pet/services/api_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,10 +18,6 @@ class _LoginPageState extends State<LoginPage> {
   bool _isPasswordVisible = false;
   bool _isLoading = false;
 
-  // Dummy credentials
-  final String _dummyEmail = "user@halopet.com";
-  final String _dummyPassword = "halopet123";
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -28,32 +25,43 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _login() {
+  void _login() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
-      // Simulate network delay
-      Future.delayed(const Duration(seconds: 1), () {
-        if (_emailController.text == _dummyEmail && 
-            _passwordController.text == _dummyPassword) {
+      try {
+        final response = await ApiService.login(
+          _emailController.text,
+          _passwordController.text,
+        );
+
+        if (response['token'] != null) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const HomePage()),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Invalid email or password'),
+            SnackBar(
+              content: Text(response['message'] ?? 'Invalid email or password'),
               backgroundColor: Colors.red,
             ),
           );
         }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('An error occurred. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } finally {
         setState(() {
           _isLoading = false;
         });
-      });
+      }
     }
   }
 
