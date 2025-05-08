@@ -1,0 +1,2 @@
+C:/laragon/www/halo_pet/halo_pet/android/app/.cxx/Debug/1b2v5e16/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/laragon/www/halo_pet/halo_pet/android/app/.cxx/Debug/1b2v5e16/armeabi-v7a/CMakeFiles/rebuild_cache.dir
