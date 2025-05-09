@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\HospitalController;
+use App\Http\Controllers\ShopController;
+use App\Http\Controllers\DoctorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,3 +37,18 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 
 Route::middleware('auth:api')->post('/user/profile', [AuthController::class, 'updateProfile']);
+
+Route::middleware('api')->group(function () {
+    // Hospital routes
+    Route::get('/hospitals', [HospitalController::class, 'index']);
+    // Shop routes
+    Route::get('/shops', [ShopController::class, 'index']);
+    // Doctor routes
+    Route::get('/doctors', [DoctorController::class, 'index']);
+    Route::get('/doctors/{id}', [DoctorController::class, 'show']);
+});
+
+Route::post('/test-log', function () {
+    \Log::info('Test log route hit');
+    return response()->json(['message' => 'Logged!']);
+});

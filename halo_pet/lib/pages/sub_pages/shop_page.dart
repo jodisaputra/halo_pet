@@ -1,173 +1,168 @@
 import 'package:flutter/material.dart';
+import 'package:halo_pet/models/shop.dart';
+import 'package:halo_pet/services/api_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class ShopPage extends StatelessWidget {
+class ShopPage extends StatefulWidget {
   const ShopPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final shops = [
-      {
-        'name': 'Pet Mart Central',
-        'address': '101 Pet Lane, Downtown',
-        'distance': '2.5 km',
-      },
-      {
-        'name': 'Happy Tails Store',
-        'address': '202 Animal Ave, Northside',
-        'distance': '3.1 km',
-      },
-      {
-        'name': 'Furry Friends Supplies',
-        'address': '303 Wellness Rd, East End',
-        'distance': '1.2 km',
-      },
-    ];
+  State<ShopPage> createState() => _ShopPageState();
+}
 
+class _ShopPageState extends State<ShopPage> {
+  final ApiService _apiService = ApiService();
+  List<Shop> _shops = [];
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadShops();
+  }
+
+  Future<void> _loadShops() async {
+    try {
+      final data = await _apiService.getShops();
+      if (data == null || data is! List) {
+        setState(() {
+          _shops = [];
+          _isLoading = false;
+          _error = 'Invalid data from server';
+        });
+        return;
+      }
+      setState(() {
+        _shops = data.map((json) => Shop.fromJson(json)).toList();
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FB),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Search Bar
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Row(
-                children: [
-                  Icon(Icons.search, color: Colors.grey[500]),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextField(
-                      decoration: const InputDecoration(
-                        hintText: 'Search shops...',
-                        border: InputBorder.none,
+      backgroundColor: const Color(0xFFF8F6FA), // Light background
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Error: [38;5;9m$_error[0m'),
+                      ElevatedButton(
+                        onPressed: _loadShops,
+                        child: const Text('Retry'),
                       ),
-                      style: const TextStyle(fontSize: 16),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Nearby Pet Shops',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.separated(
-                itemCount: shops.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 16),
-                itemBuilder: (context, index) {
-                  final shop = shops[index];
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                shop['name'] as String,
-                                style: const TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          shop['address'] as String,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              shop['distance'] as String,
-                              style: const TextStyle(
-                                color: Colors.blue,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                ElevatedButton.icon(
-                                  onPressed: () {},
-                                  icon: const Icon(Icons.call, size: 18),
-                                  label: const Text('Call'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green[50],
-                                    foregroundColor: Colors.green[800],
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
+                )
+              : _shops.isEmpty
+                  ? const Center(child: Text('No shops found.'))
+                  : RefreshIndicator(
+                      onRefresh: _loadShops,
+                      child: ListView.builder(
+                        itemCount: _shops.length,
+                        itemBuilder: (context, index) {
+                          final shop = _shops[index];
+                          return Card(
+                            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    shop.name,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                ElevatedButton.icon(
-                                  onPressed: () {},
-                                  icon: const Icon(Icons.directions, size: 18),
-                                  label: const Text('Directions'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue[50],
-                                    foregroundColor: Colors.blue[800],
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.location_on, size: 16, color: Colors.blueGrey),
+                                      const SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          shop.address,
+                                          style: const TextStyle(color: Colors.grey),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.star, color: Colors.amber, size: 16),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        shop.rating.toString(),
+                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    children: [
+                                      ElevatedButton.icon(
+                                        onPressed: () async {
+                                          final uri = Uri(scheme: 'tel', path: shop.phone);
+                                          if (await canLaunchUrl(uri)) {
+                                            await launchUrl(uri);
+                                          }
+                                        },
+                                        icon: const Icon(Icons.call, size: 18),
+                                        label: const Text('Call'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.green[50],
+                                          foregroundColor: Colors.green[800],
+                                          elevation: 0,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(30),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      ElevatedButton.icon(
+                                        onPressed: () async {
+                                          final query = Uri.encodeComponent(shop.address);
+                                          final googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=$query';
+                                          final uri = Uri.parse(googleMapsUrl);
+                                          if (await canLaunchUrl(uri)) {
+                                            await launchUrl(uri);
+                                          }
+                                        },
+                                        icon: const Icon(Icons.directions, size: 18),
+                                        label: const Text('Directions'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue[50],
+                                          foregroundColor: Colors.blue[800],
+                                          elevation: 0,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(30),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ],
-                        ),
-                      ],
+                          );
+                        },
+                      ),
                     ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

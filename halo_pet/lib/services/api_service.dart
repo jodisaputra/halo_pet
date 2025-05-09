@@ -22,6 +22,10 @@ class ApiService {
       // Save token
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', data['token']);
+      // Save role if present
+      if (data['user'] != null && data['user']['role'] != null) {
+        await prefs.setString('role', data['user']['role']);
+      }
     }
     return data;
   }
@@ -39,7 +43,13 @@ class ApiService {
         'password': password
       }),
     );
-    return jsonDecode(response.body);
+    final data = jsonDecode(response.body);
+    // Save role if present
+    if (data['user'] != null && data['user']['role'] != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('role', data['user']['role']);
+    }
+    return data;
   }
 
   // Forgot Password
@@ -163,5 +173,122 @@ class ApiService {
         throw Exception('Failed to update profile: ${e.toString()}');
       }
     }
+  }
+
+  // Hospital endpoints
+  Future<List<dynamic>> getHospitals() async {
+    final response = await http.get(Uri.parse('$baseUrl/hospitals'));
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    }
+    throw Exception('Failed to load hospitals');
+  }
+
+  Future<dynamic> getHospital(int id) async {
+    final response = await http.get(Uri.parse('$baseUrl/hospitals/$id'));
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    }
+    throw Exception('Failed to load hospital');
+  }
+
+  Future<dynamic> createHospital(Map<String, dynamic> data) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/hospitals'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(data),
+    );
+    if (response.statusCode == 201) {
+      return json.decode(response.body);
+    }
+    throw Exception('Failed to create hospital');
+  }
+
+  Future<dynamic> updateHospital(int id, Map<String, dynamic> data) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/hospitals/$id'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(data),
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    }
+    throw Exception('Failed to update hospital');
+  }
+
+  Future<void> deleteHospital(int id) async {
+    final response = await http.delete(Uri.parse('$baseUrl/hospitals/$id'));
+    if (response.statusCode != 204) {
+      throw Exception('Failed to delete hospital');
+    }
+  }
+
+  // Shop endpoints
+  Future<List<dynamic>> getShops() async {
+    final response = await http.get(Uri.parse('$baseUrl/shops'));
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    }
+    throw Exception('Failed to load shops');
+  }
+
+  Future<dynamic> getShop(int id) async {
+    final response = await http.get(Uri.parse('$baseUrl/shops/$id'));
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    }
+    throw Exception('Failed to load shop');
+  }
+
+  Future<dynamic> createShop(Map<String, dynamic> data) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/shops'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(data),
+    );
+    if (response.statusCode == 201) {
+      return json.decode(response.body);
+    }
+    throw Exception('Failed to create shop');
+  }
+
+  Future<dynamic> updateShop(int id, Map<String, dynamic> data) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/shops/$id'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(data),
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    }
+    throw Exception('Failed to update shop');
+  }
+
+  Future<void> deleteShop(int id) async {
+    final response = await http.delete(Uri.parse('$baseUrl/shops/$id'));
+    if (response.statusCode != 204) {
+      throw Exception('Failed to delete shop');
+    }
+  }
+
+  // Doctor endpoints
+  Future<List<dynamic>> getDoctors({String? search}) async {
+    String url = '$baseUrl/doctors';
+    if (search != null && search.isNotEmpty) {
+      url += '?search=${Uri.encodeComponent(search)}';
+    }
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    }
+    throw Exception('Failed to load doctors');
+  }
+
+  Future<dynamic> getDoctor(int id) async {
+    final response = await http.get(Uri.parse('$baseUrl/doctors/$id'));
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    }
+    throw Exception('Failed to load doctor');
   }
 } 

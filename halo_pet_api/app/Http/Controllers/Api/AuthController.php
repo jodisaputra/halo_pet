@@ -13,6 +13,7 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
+        \Log::info('Register attempt', $request->all());
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -21,6 +22,7 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
+            \Log::warning('Register validation failed', $validator->errors()->toArray());
             return response()->json($validator->errors(), 422);
         }
 
@@ -29,29 +31,57 @@ class AuthController extends Controller
             'last_name' => $request->last_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'user',
         ]);
 
-        return response()->json(['message' => 'User registered successfully'], 201);
+        \Log::info('User registered', ['user_id' => $user->id, 'email' => $user->email]);
+
+        return response()->json([
+            'message' => 'User registered successfully',
+            'user' => $user
+        ], 201);
     }
 
     public function login(Request $request)
     {
+        \Log::info('Login attempt', [
+            'email' => $request->email,
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'input' => $request->except('password')
+        ]);
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
 
         if ($validator->fails()) {
+            \Log::warning('Login validation failed', [
+                'errors' => $validator->errors()->toArray(),
+                'email' => $request->email,
+                'ip' => $request->ip()
+            ]);
             return response()->json($validator->errors(), 422);
         }
 
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
+            \Log::warning('Login failed: invalid credentials', [
+                'email' => $request->email,
+                'ip' => $request->ip()
+            ]);
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
         $token = $user->createToken('Personal Access Token')->accessToken;
+
+        \Log::info('Login successful', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'ip' => $request->ip()
+        ]);
 
         return response()->json([
             'message' => 'Login successful',
