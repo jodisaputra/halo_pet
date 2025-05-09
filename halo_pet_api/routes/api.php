@@ -16,9 +16,21 @@ use App\Http\Controllers\Api\AuthController;
 */
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+    $user = $request->user();
+    return [
+        'id' => $user->id,
+        'first_name' => $user->first_name,
+        'last_name' => $user->last_name,
+        'email' => $user->email,
+        'profile_image' => $user->profile_image_url,
+        'phone' => $user->phone,
+        'gender' => $user->gender,
+        'dob' => $user->dob,
+    ];
 });
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+
+Route::middleware('auth:api')->post('/user/profile', [AuthController::class, 'updateProfile']);

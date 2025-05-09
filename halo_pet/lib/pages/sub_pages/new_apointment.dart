@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:halo_pet/pages/main/homepage.dart';
+import 'package:halo_pet/pages/main/home_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class NewApointment extends StatefulWidget {
@@ -182,7 +182,7 @@ class _NewApointmentState extends State<NewApointment> {
                                   Navigator.push(
                                     context, 
                                     MaterialPageRoute(
-                                      builder: (context) => const Homepage()
+                                      builder: (context) => const HomePage()
                                       )
                                     );// Close the dialog
                                 },

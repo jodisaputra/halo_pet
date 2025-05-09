@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:halo_pet/pages/login_pages/login_page.dart';
+import 'package:halo_pet/services/api_service.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class Profilepage extends StatefulWidget {
   const Profilepage({super.key});
@@ -12,11 +15,49 @@ class _ProfilepageState extends State<Profilepage> {
   String? selectedGender;
   final List<String> gender = ['Male', 'Female', 'Other'];
   final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   String _profileImage = 'lib/assets/image/profile_picture.png';
+  File? _pickedImage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    final user = await ApiService.getUser();
+    if (user != null) {
+      setState(() {
+        _firstNameController.text = user['first_name'] ?? '';
+        _lastNameController.text = user['last_name'] ?? '';
+        _phoneController.text = user['phone'] ?? '';
+        _emailController.text = user['email'] ?? '';
+        selectedGender = user['gender'];
+        _dateController.text = user['dob'] ?? '';
+        if (user['profile_image'] != null && user['profile_image'].toString().isNotEmpty) {
+          _profileImage = user['profile_image'];
+        }
+      });
+    }
+  }
 
   @override
   void dispose() {
     _dateController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
@@ -30,6 +71,15 @@ class _ProfilepageState extends State<Profilepage> {
     if (pickedDate != null) {
       setState(() {
         _dateController.text = "${pickedDate.toLocal()}".split(' ')[0];
+      });
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      setState(() {
+        _pickedImage = File(picked.path);
       });
     }
   }
@@ -58,14 +108,7 @@ class _ProfilepageState extends State<Profilepage> {
                 // Avatar
                 Center(
                   child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        // Dummy: Toggle between two local images
-                        _profileImage = _profileImage == 'lib/assets/image/profile_picture.png'
-                            ? 'lib/assets/image/profile_picture2.png'
-                            : 'lib/assets/image/profile_picture.png';
-                      });
-                    },
+                    onTap: _pickImage,
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
@@ -84,10 +127,11 @@ class _ProfilepageState extends State<Profilepage> {
                             ],
                           ),
                         ),
-                        Image.asset(
-                          _profileImage,
-                          height: 90,
-                        ),
+                        _pickedImage != null
+                          ? ClipOval(child: Image.file(_pickedImage!, height: 90, width: 90, fit: BoxFit.cover))
+                          : (_profileImage.startsWith('http')
+                              ? ClipOval(child: Image.network(_profileImage, height: 90, width: 90, fit: BoxFit.cover))
+                              : ClipOval(child: Image.asset(_profileImage, height: 90, width: 90, fit: BoxFit.cover))),
                         Positioned(
                           bottom: 8,
                           right: 8,
@@ -105,25 +149,6 @@ class _ProfilepageState extends State<Profilepage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                // Username & Email
-                const Text(
-                  "Username",
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  "username@gmail.com",
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: Colors.grey,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 24),
                 // Info Card
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -148,10 +173,12 @@ class _ProfilepageState extends State<Profilepage> {
                           const SizedBox(height: 18),
                           // First Name
                           TextField(
+                            controller: _firstNameController,
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: Colors.grey[100],
-                              hintText: "Masukkan nama pertama anda",
+                              labelText: 'First Name',
+                              hintText: 'Enter your first name',
                               hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -163,10 +190,12 @@ class _ProfilepageState extends State<Profilepage> {
                           const SizedBox(height: 14),
                           // Last Name
                           TextField(
+                            controller: _lastNameController,
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: Colors.grey[100],
-                              hintText: "Masukkan nama terakhirmu",
+                              labelText: 'Last Name',
+                              hintText: 'Enter your last name',
                               hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -176,12 +205,34 @@ class _ProfilepageState extends State<Profilepage> {
                             ),
                           ),
                           const SizedBox(height: 14),
-                          // Phone
+                          // Email
                           TextField(
+                            controller: _emailController,
+                            readOnly: true,
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: Colors.grey[100],
-                              hintText: "Nomor telepon",
+                              labelText: 'Email',
+                              hintText: 'Enter your email',
+                              hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              prefixIcon: const Icon(Icons.email_outlined),
+                            ),
+                            keyboardType: TextInputType.emailAddress,
+                          ),
+                          const SizedBox(height: 14),
+                          // Phone
+                          TextField(
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                              labelText: 'Phone',
+                              hintText: 'Enter your phone number',
                               hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -196,6 +247,7 @@ class _ProfilepageState extends State<Profilepage> {
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: Colors.grey[100],
+                              labelText: 'Gender',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
@@ -215,7 +267,7 @@ class _ProfilepageState extends State<Profilepage> {
                               });
                             },
                             hint: const Text(
-                              "Choose Gender",
+                              "Select Gender",
                               style: TextStyle(color: Colors.grey, fontSize: 14),
                             ),
                           ),
@@ -225,7 +277,8 @@ class _ProfilepageState extends State<Profilepage> {
                             controller: _dateController,
                             readOnly: true,
                             decoration: InputDecoration(
-                              hintText: "Tanggal Lahir",
+                              labelText: 'Date of Birth',
+                              hintText: 'Select your date of birth',
                               hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
                               filled: true,
                               fillColor: Colors.grey[100],
@@ -251,7 +304,36 @@ class _ProfilepageState extends State<Profilepage> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              onPressed: () {},
+                              onPressed: () async {
+                                try {
+                                  final response = await ApiService.updateProfile(
+                                    firstName: _firstNameController.text,
+                                    lastName: _lastNameController.text,
+                                    email: _emailController.text,
+                                    phone: _phoneController.text,
+                                    gender: selectedGender,
+                                    dob: _dateController.text.isNotEmpty ? _dateController.text : null,
+                                    imageFile: _pickedImage,
+                                  );
+                                  
+                                  if (response['message'] == 'Profile updated successfully') {
+                                    await _loadUserProfile();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Profile updated successfully'),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(e.toString()),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              },
                               child: const Text(
                                 "Update Profile",
                                 style: TextStyle(fontSize: 15, fontFamily: 'Poppins'),

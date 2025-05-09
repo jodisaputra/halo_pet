@@ -14,7 +14,8 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
         ]);
@@ -24,7 +25,8 @@ class AuthController extends Controller
         }
 
         $user = User::create([
-            'name' => $request->name,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
@@ -76,6 +78,80 @@ class AuthController extends Controller
             return response()->json(['message' => 'Reset link sent to your email.']);
         } else {
             return response()->json(['message' => 'Unable to send reset link.'], 400);
+        }
+    }
+
+    public function updateProfile(Request $request)
+    {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json(['message' => 'Unauthorized'], 401);
+            }
+
+            \Log::info('Update Profile Request:', $request->all());
+
+            $validator = Validator::make($request->all(), [
+                'first_name' => 'sometimes|string|max:255',
+                'last_name' => 'sometimes|string|max:255',
+                'phone' => 'sometimes|string|max:20',
+                'gender' => 'sometimes|string|max:20',
+                'dob' => 'sometimes|date',
+                'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+
+            if ($validator->fails()) {
+                \Log::error('Validation failed:', $validator->errors()->toArray());
+                return response()->json([
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            // Handle image upload
+            if ($request->hasFile('profile_image')) {
+                $image = $request->file('profile_image');
+                $imageName = time().'_'.$image->getClientOriginalName();
+                $image->move(public_path('profile_images'), $imageName);
+                $user->profile_image = 'profile_images/' . $imageName;
+            }
+
+            // Define fields array here
+            $fields = ['first_name', 'last_name', 'phone', 'gender', 'dob'];
+            foreach ($fields as $field) {
+                if ($request->filled($field) || $request->has($field)) {
+                    \Log::info("Updating $field:", [$request->input($field)]);
+                    $user->$field = $request->input($field);
+                }
+            }
+            
+            \Log::info('User before save:', $user->toArray());
+            $user->save();
+            $user->refresh();
+            \Log::info('User after save:', $user->toArray());
+
+            return response()->json([
+                'message' => 'Profile updated successfully',
+                'user' => [
+                    'id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'email' => $user->email,
+                    'profile_image' => $user->profile_image ? url($user->profile_image) : null,
+                    'phone' => $user->phone,
+                    'gender' => $user->gender,
+                    'dob' => $user->dob,
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            \Log::error('Profile update error:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'message' => 'Failed to update profile',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }

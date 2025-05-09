@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:halo_pet/pages/main/apointment_page.dart';
 import 'package:halo_pet/pages/main/doctor_page.dart';
-import 'package:halo_pet/pages/main/homepage.dart';
+import 'package:halo_pet/pages/main/home_page.dart';
 import 'package:halo_pet/pages/main/profilepage.dart';
 import 'package:halo_pet/pages/main_topnav.dart';
 
@@ -17,7 +17,7 @@ class _MainBotnavState extends State<MainBotnav> {
   int _currentIndex = 0;
   
   final List<Widget> _pages = [
-        const Homepage(),
+        const HomePage(),
         const MainTopnav(),
         const DoctorPage(),
         const ApointmentPage(),
@@ -29,6 +29,7 @@ class _MainBotnavState extends State<MainBotnav> {
     return Scaffold(
       body: _pages[_currentIndex], // Load selected page dynamically
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -37,23 +38,28 @@ class _MainBotnavState extends State<MainBotnav> {
         },
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.medical_services),
+            icon: Icon(Icons.medical_services_outlined),
+            activeIcon: Icon(Icons.medical_services),
             label: 'Medicines',
           ),
           BottomNavigationBarItem(
-            icon:  Icon(Icons.person_search),
+            icon: Icon(Icons.person_search_outlined),
+            activeIcon: Icon(Icons.person_search),
             label: 'Doctor'
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
+            icon: Icon(Icons.calendar_today_outlined),
+            activeIcon: Icon(Icons.calendar_today),
             label: 'Appointments',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
             label: 'Profile',
           ),
         ],

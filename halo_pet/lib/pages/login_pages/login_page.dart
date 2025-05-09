@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:halo_pet/pages/home_pages/home_page.dart';
+import 'package:halo_pet/pages/main_botnav.dart';
 import 'package:halo_pet/pages/login_pages/register_page.dart';
 import 'package:halo_pet/pages/login_pages/forgot_password_page.dart';
 import 'package:halo_pet/services/api_service.dart';
@@ -40,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
         if (response['token'] != null) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
+            MaterialPageRoute(builder: (context) => const MainBotnav()),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -74,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
     Future.delayed(const Duration(seconds: 1), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
+        MaterialPageRoute(builder: (context) => const MainBotnav()),
       );
       setState(() {
         _isLoading = false;
