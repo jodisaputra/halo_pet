@@ -5,258 +5,167 @@ class ShopPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final shops = [
+      {
+        'name': 'Pet Mart Central',
+        'address': '101 Pet Lane, Downtown',
+        'distance': '2.5 km',
+      },
+      {
+        'name': 'Happy Tails Store',
+        'address': '202 Animal Ave, Northside',
+        'distance': '3.1 km',
+      },
+      {
+        'name': 'Furry Friends Supplies',
+        'address': '303 Wellness Rd, East End',
+        'distance': '1.2 km',
+      },
+    ];
+
     return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
-                    boxShadow: [BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      blurStyle: BlurStyle.normal,
-                      blurRadius: 2,
-                      offset: const Offset(3, 3),
-                      spreadRadius: 2
-                    )]
+      backgroundColor: const Color(0xFFF8F9FB),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Search Bar
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
-                  height: 270,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 15),
+                ],
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Row(
+                children: [
+                  Icon(Icons.search, color: Colors.grey[500]),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'Search shops...',
+                        border: InputBorder.none,
+                      ),
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Nearby Pet Shops',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.separated(
+                itemCount: shops.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 16),
+                itemBuilder: (context, index) {
+                  final shop = shops[index];
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Center(child: Image.asset('lib/assets/image/map_location_4.png')),
-                        const Padding(
-                          padding: EdgeInsets.only(top: 5, left: 20),
-                          child: Text(
-                            "Cakrawala Petshop",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold
-                            ),
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(top: 5, left: 15),
-                          child: Row(
-                            children: [
-                              Icon(Icons.pin_drop_outlined),
-                              Text(
-                                "Komplek Tunas Regency, jln Bridgjen Katam ...",
-                              )
-                            ],
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(top: 5, left: 20),
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Text(
-                                  "5.0"
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                shop['name'] as String,
+                                style: const TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Icon(Icons.star, color: Color(0xFFFEB052),),
-                              Icon(Icons.star, color: Color(0xFFFEB052),),
-                              Icon(Icons.star, color: Color(0xFFFEB052),),
-                              Icon(Icons.star, color: Color(0xFFFEB052),),
-                              Icon(Icons.star, color: Color(0xFFFEB052),),
-                              Text(
-                                "(128 Reviews)"
-                              )
-                            ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          shop['address'] as String,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 15),
-                          child: Row(
-                            children: [
-                              Icon(Icons.route, color: Colors.black.withOpacity(0.5),),
-                              const Padding(
-                                padding: EdgeInsets.only(left: 10),
-                                child: Text(
-                                  "2.5 km/40min"
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              shop['distance'] as String,
+                              style: const TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: () {},
+                                  icon: const Icon(Icons.call, size: 18),
+                                  label: const Text('Call'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green[50],
+                                    foregroundColor: Colors.green[800],
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                  ),
                                 ),
-                              )
-                            ],
-                          ),
-                        )
+                                const SizedBox(width: 8),
+                                ElevatedButton.icon(
+                                  onPressed: () {},
+                                  icon: const Icon(Icons.directions, size: 18),
+                                  label: const Text('Directions'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue[50],
+                                    foregroundColor: Colors.blue[800],
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ],
                     ),
-                  ),
-                ),
-            
-                Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
-                      boxShadow: [BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        blurStyle: BlurStyle.normal,
-                        blurRadius: 2,
-                        offset: const Offset(3, 3),
-                        spreadRadius: 2
-                      )]
-                    ),
-                    height: 270,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 15),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(child: Image.asset('lib/assets/image/map_location_5.png')),
-                          const Padding(
-                            padding: EdgeInsets.only(top: 5, left: 20),
-                            child: Text(
-                              "Paradiz Pet Shop",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(top: 5, left: 15),
-                            child: Row(
-                              children: [
-                                Icon(Icons.pin_drop_outlined),
-                                Text(
-                                  "Park, Jl.Imam Bonjol Komp. Windsor Central ..."
-                                )
-                              ],
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(top: 5, left: 20),
-                            child: Row(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: Text(
-                                    "4.9"
-                                  ),
-                                ),
-                                Icon(Icons.star, color: Color(0xFFFEB052),),
-                                Icon(Icons.star, color: Color(0xFFFEB052),),
-                                Icon(Icons.star, color: Color(0xFFFEB052),),
-                                Icon(Icons.star, color: Color(0xFFFEB052),),
-                                Icon(Icons.star, color: Color(0xFFFEB052),),
-                                Text(
-                                  "(58 Reviews)"
-                                )
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15),
-                            child: Row(
-                              children: [
-                                Icon(Icons.route, color: Colors.black.withOpacity(0.5),),
-                                const Padding(
-                                  padding: EdgeInsets.only(left: 10),
-                                  child: Text(
-                                    "2.5 km/40min"
-                                  ),
-                                )
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-            
-                Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
-                      boxShadow: [BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        blurStyle: BlurStyle.normal,
-                        blurRadius: 2,
-                        offset: const Offset(3, 3),
-                        spreadRadius: 2
-                      )]
-                    ),
-                    height: 270,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 15),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(child: Image.asset('lib/assets/image/map_location_2.png')),
-                          const Padding(
-                            padding: EdgeInsets.only(top: 5, left: 20),
-                            child: Text(
-                              "Bruno Pet Clinic",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(top: 5, left: 15),
-                            child: Row(
-                              children: [
-                                Icon(Icons.pin_drop_outlined),
-                                Text(
-                                  "Ruko Puri Loka, Blk.E No.3"
-                                )
-                              ],
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(top: 5, left: 20),
-                            child: Row(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: Text(
-                                    "4.9"
-                                  ),
-                                ),
-                                Icon(Icons.star, color: Color(0xFFFEB052),),
-                                Icon(Icons.star, color: Color(0xFFFEB052),),
-                                Icon(Icons.star, color: Color(0xFFFEB052),),
-                                Icon(Icons.star, color: Color(0xFFFEB052),),
-                                Icon(Icons.star, color: Color(0xFFFEB052),),
-                                Text(
-                                  "(58 Reviews)"
-                                )
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15),
-                            child: Row(
-                              children: [
-                                Icon(Icons.route, color: Colors.black.withOpacity(0.5),),
-                                const Padding(
-                                  padding: EdgeInsets.only(left: 10),
-                                  child: Text(
-                                    "2.5 km/40min"
-                                  ),
-                                )
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ], // Main Column
+                  );
+                },
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

@@ -248,7 +248,7 @@ class _HomeContentState extends State<HomeContent> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const MedicinePage()),
+                        MaterialPageRoute(builder: (context) => const MedicineTabView()),
                       );
                     },
                   ),

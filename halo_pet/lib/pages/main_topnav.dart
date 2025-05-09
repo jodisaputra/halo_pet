@@ -26,10 +26,10 @@ class TopNavBar extends StatelessWidget {
           bottom: const TabBar(
             tabs: [
               Tab(
-                text: 'Rumah Sakit',
+                text: 'Hospital',
               ),
               Tab(
-                text: 'Toko Kesehatan',
+                text: 'Health Store',
               )
             ]
           ),
