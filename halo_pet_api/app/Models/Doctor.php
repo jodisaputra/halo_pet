@@ -17,4 +17,9 @@ class Doctor extends Model
         'about',
         'working_time',
     ];
+
+    public function timeSlots()
+    {
+        return $this->hasMany(\App\Models\TimeSlot::class);
+    }
 } 

@@ -13,7 +13,6 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        \Log::info('Register attempt', $request->all());
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -124,9 +123,9 @@ class AuthController extends Controller
             $validator = Validator::make($request->all(), [
                 'first_name' => 'sometimes|string|max:255',
                 'last_name' => 'sometimes|string|max:255',
-                'phone' => 'sometimes|string|max:20',
-                'gender' => 'sometimes|string|max:20',
-                'dob' => 'sometimes|date',
+                'phone' => 'nullable|string|max:20',
+                'gender' => 'nullable|string|max:20',
+                'dob' => 'nullable|date',
                 'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 

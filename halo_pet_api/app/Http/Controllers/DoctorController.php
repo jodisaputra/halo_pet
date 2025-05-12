@@ -32,4 +32,20 @@ class DoctorController extends Controller
         $doctor = Doctor::select('id', 'name', 'specialty', 'image', 'location', 'about', 'working_time')->findOrFail($id);
         return response()->json($doctor);
     }
+
+    public function availableTimeSlots($doctorId)
+    {
+        $doctor = \App\Models\Doctor::with(['timeSlots' => function($query) {
+            $query->where('is_available', true);
+        }])->findOrFail($doctorId);
+
+        $slots = $doctor->timeSlots->map(function($slot) {
+            return [
+                'start_time' => $slot->start_time->format('H:i'),
+                'end_time' => $slot->end_time->format('H:i'),
+            ];
+        });
+
+        return response()->json($slots);
+    }
 }

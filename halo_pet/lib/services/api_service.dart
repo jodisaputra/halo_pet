@@ -26,8 +26,16 @@ class ApiService {
       if (data['user'] != null && data['user']['role'] != null) {
         await prefs.setString('role', data['user']['role']);
       }
+      return data;
+    } else {
+      if (data is Map && data['message'] != null) {
+        throw Exception(data['message']);
+      } else if (data is Map && data['errors'] != null) {
+        throw Exception(data['errors'].toString());
+      } else {
+        throw Exception('Failed to login: ${response.body}');
+      }
     }
-    return data;
   }
 
   // Register
@@ -44,12 +52,22 @@ class ApiService {
       }),
     );
     final data = jsonDecode(response.body);
-    // Save role if present
-    if (data['user'] != null && data['user']['role'] != null) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('role', data['user']['role']);
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      // Save role if present
+      if (data['user'] != null && data['user']['role'] != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('role', data['user']['role']);
+      }
+      return data;
+    } else {
+      if (data is Map && data['message'] != null) {
+        throw Exception(data['message']);
+      } else if (data is Map && data['errors'] != null) {
+        throw Exception(data['errors'].toString());
+      } else {
+        throw Exception('Failed to register: ${response.body}');
+      }
     }
-    return data;
   }
 
   // Forgot Password
@@ -59,7 +77,18 @@ class ApiService {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email}),
     );
-    return jsonDecode(response.body);
+    final data = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return data;
+    } else {
+      if (data is Map && data['message'] != null) {
+        throw Exception(data['message']);
+      } else if (data is Map && data['errors'] != null) {
+        throw Exception(data['errors'].toString());
+      } else {
+        throw Exception('Failed to reset password: ${response.body}');
+      }
+    }
   }
 
   // Get logged-in user
@@ -76,8 +105,16 @@ class ApiService {
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
+    } else {
+      final data = jsonDecode(response.body);
+      if (data is Map && data['message'] != null) {
+        throw Exception(data['message']);
+      } else if (data is Map && data['errors'] != null) {
+        throw Exception(data['errors'].toString());
+      } else {
+        throw Exception('Failed to get user: ${response.body}');
+      }
     }
-    return null;
   }
 
   // Logout
@@ -200,8 +237,16 @@ class ApiService {
     );
     if (response.statusCode == 201) {
       return json.decode(response.body);
+    } else {
+      final error = json.decode(response.body);
+      if (error is Map && error['message'] != null) {
+        throw Exception(error['message']);
+      } else if (error is Map && error['errors'] != null) {
+        throw Exception(error['errors'].toString());
+      } else {
+        throw Exception('Failed to create hospital: ${response.body}');
+      }
     }
-    throw Exception('Failed to create hospital');
   }
 
   Future<dynamic> updateHospital(int id, Map<String, dynamic> data) async {
@@ -212,14 +257,29 @@ class ApiService {
     );
     if (response.statusCode == 200) {
       return json.decode(response.body);
+    } else {
+      final error = json.decode(response.body);
+      if (error is Map && error['message'] != null) {
+        throw Exception(error['message']);
+      } else if (error is Map && error['errors'] != null) {
+        throw Exception(error['errors'].toString());
+      } else {
+        throw Exception('Failed to update hospital: ${response.body}');
+      }
     }
-    throw Exception('Failed to update hospital');
   }
 
   Future<void> deleteHospital(int id) async {
     final response = await http.delete(Uri.parse('$baseUrl/hospitals/$id'));
     if (response.statusCode != 204) {
-      throw Exception('Failed to delete hospital');
+      final error = json.decode(response.body);
+      if (error is Map && error['message'] != null) {
+        throw Exception(error['message']);
+      } else if (error is Map && error['errors'] != null) {
+        throw Exception(error['errors'].toString());
+      } else {
+        throw Exception('Failed to delete hospital: ${response.body}');
+      }
     }
   }
 
@@ -248,8 +308,16 @@ class ApiService {
     );
     if (response.statusCode == 201) {
       return json.decode(response.body);
+    } else {
+      final error = json.decode(response.body);
+      if (error is Map && error['message'] != null) {
+        throw Exception(error['message']);
+      } else if (error is Map && error['errors'] != null) {
+        throw Exception(error['errors'].toString());
+      } else {
+        throw Exception('Failed to create shop: ${response.body}');
+      }
     }
-    throw Exception('Failed to create shop');
   }
 
   Future<dynamic> updateShop(int id, Map<String, dynamic> data) async {
@@ -260,14 +328,29 @@ class ApiService {
     );
     if (response.statusCode == 200) {
       return json.decode(response.body);
+    } else {
+      final error = json.decode(response.body);
+      if (error is Map && error['message'] != null) {
+        throw Exception(error['message']);
+      } else if (error is Map && error['errors'] != null) {
+        throw Exception(error['errors'].toString());
+      } else {
+        throw Exception('Failed to update shop: ${response.body}');
+      }
     }
-    throw Exception('Failed to update shop');
   }
 
   Future<void> deleteShop(int id) async {
     final response = await http.delete(Uri.parse('$baseUrl/shops/$id'));
     if (response.statusCode != 204) {
-      throw Exception('Failed to delete shop');
+      final error = json.decode(response.body);
+      if (error is Map && error['message'] != null) {
+        throw Exception(error['message']);
+      } else if (error is Map && error['errors'] != null) {
+        throw Exception(error['errors'].toString());
+      } else {
+        throw Exception('Failed to delete shop: ${response.body}');
+      }
     }
   }
 
@@ -288,7 +371,150 @@ class ApiService {
     final response = await http.get(Uri.parse('$baseUrl/doctors/$id'));
     if (response.statusCode == 200) {
       return json.decode(response.body);
+    } else {
+      final error = json.decode(response.body);
+      if (error is Map && error['message'] != null) {
+        throw Exception(error['message']);
+      } else if (error is Map && error['errors'] != null) {
+        throw Exception(error['errors'].toString());
+      } else {
+        throw Exception('Failed to load doctor: ${response.body}');
+      }
     }
-    throw Exception('Failed to load doctor');
+  }
+
+  // Appointment endpoints
+  Future<List<dynamic>> getAppointments({String? status}) async {
+    String url = '$baseUrl/appointments';
+    if (status != null) {
+      url += '?status=$status';
+    }
+    final response = await http.get(
+      Uri.parse(url),
+      headers: await _getAuthHeaders(),
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    }
+    throw Exception('Failed to load appointments');
+  }
+
+  Future<dynamic> createAppointment(Map<String, dynamic> data) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/appointments'),
+      headers: await _getAuthHeaders(),
+      body: json.encode(data),
+    );
+    if (response.statusCode == 201) {
+      return json.decode(response.body);
+    } else {
+      try {
+        final error = json.decode(response.body);
+        if (error is Map && error['message'] != null) {
+          throw Exception(error['message']);
+        } else if (error is Map && error['errors'] != null) {
+          throw Exception(error['errors'].toString());
+        } else {
+          throw Exception('Failed to create appointment: ${response.body}');
+        }
+      } catch (_) {
+        throw Exception('Failed to create appointment: ${response.body}');
+      }
+    }
+  }
+
+  Future<dynamic> getAppointment(int id) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/appointments/$id'),
+      headers: await _getAuthHeaders(),
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      final error = json.decode(response.body);
+      if (error is Map && error['message'] != null) {
+        throw Exception(error['message']);
+      } else if (error is Map && error['errors'] != null) {
+        throw Exception(error['errors'].toString());
+      } else {
+        throw Exception('Failed to load appointment: ${response.body}');
+      }
+    }
+  }
+
+  Future<dynamic> updateAppointment(int id, Map<String, dynamic> data) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/appointments/$id'),
+      headers: await _getAuthHeaders(),
+      body: json.encode(data),
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      final error = json.decode(response.body);
+      if (error is Map && error['message'] != null) {
+        throw Exception(error['message']);
+      } else if (error is Map && error['errors'] != null) {
+        throw Exception(error['errors'].toString());
+      } else {
+        throw Exception('Failed to update appointment: ${response.body}');
+      }
+    }
+  }
+
+  Future<void> deleteAppointment(int id) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/appointments/$id'),
+      headers: await _getAuthHeaders(),
+    );
+    if (response.statusCode != 204) {
+      final error = json.decode(response.body);
+      if (error is Map && error['message'] != null) {
+        throw Exception(error['message']);
+      } else if (error is Map && error['errors'] != null) {
+        throw Exception(error['errors'].toString());
+      } else {
+        throw Exception('Failed to delete appointment: ${response.body}');
+      }
+    }
+  }
+
+  Future<List<Map<String, String>>> getAvailableTimeSlots(int doctorId, String date) async {
+    try {
+      print('Debug: Fetching time slots for doctor $doctorId');
+      final response = await http.get(
+        Uri.parse('$baseUrl/doctors/$doctorId/available-time-slots'),
+      );
+      print('Debug: Response status code: ${response.statusCode}');
+      print('Debug: Response body: ${response.body}');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map<Map<String, String>>((slot) => {
+          'start_time': slot['start_time'],
+          'end_time': slot['end_time'],
+        }).toList();
+      } else {
+        final error = json.decode(response.body);
+        throw Exception(error['message'] ?? 'Failed to load available time slots');
+      }
+    } catch (e) {
+      print('Debug: Error in getAvailableTimeSlots: $e');
+      if (e is FormatException) {
+        throw Exception('Invalid response format from server');
+      } else if (e is SocketException) {
+        throw Exception('Network error - check your connection');
+      } else {
+        throw Exception('Failed to load available time slots: ${e.toString()}');
+      }
+    }
+  }
+
+  Future<Map<String, String>> _getAuthHeaders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
   }
 } 

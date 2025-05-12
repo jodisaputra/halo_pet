@@ -51,6 +51,7 @@ class DoctorWebController extends Controller
      */
     public function show(Doctor $doctor)
     {
+        $doctor->load('timeSlots');
         return view('doctors.show', compact('doctor'));
     }
 
@@ -89,5 +90,26 @@ class DoctorWebController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function addTimeSlot(Request $request, Doctor $doctor)
+    {
+        $validated = $request->validate([
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+        ]);
+        $doctor->timeSlots()->create([
+            'start_time' => $validated['start_time'],
+            'end_time' => $validated['end_time'],
+            'is_available' => true,
+        ]);
+        return redirect()->route('doctors.show', $doctor->id)->with('success', 'Time slot added.');
+    }
+
+    public function deleteTimeSlot(Doctor $doctor, $slotId)
+    {
+        $slot = $doctor->timeSlots()->findOrFail($slotId);
+        $slot->delete();
+        return redirect()->route('doctors.show', $doctor->id)->with('success', 'Time slot deleted.');
     }
 }

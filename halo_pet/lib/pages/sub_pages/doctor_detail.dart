@@ -158,7 +158,9 @@ class _DoctorDetailState extends State<DoctorDetail> {
                 ? null
                 : () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const NewApointment()),
+                      MaterialPageRoute(
+                        builder: (context) => NewAppointment(doctorId: widget.doctorId),
+                      ),
                     ),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF0174CE),

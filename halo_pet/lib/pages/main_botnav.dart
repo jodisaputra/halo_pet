@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:halo_pet/pages/main/apointment_page.dart';
 import 'package:halo_pet/pages/main/doctor_page.dart';
 import 'package:halo_pet/pages/main/home_page.dart';
 import 'package:halo_pet/pages/main/profilepage.dart';
@@ -13,27 +12,25 @@ class MainBotnav extends StatefulWidget {
 }
 
 class _MainBotnavState extends State<MainBotnav> {
-
   int _currentIndex = 0;
   
   final List<Widget> _pages = [
-        const HomePage(),
-        const MainTopnav(),
-        const DoctorPage(),
-        const ApointmentPage(),
-        const Profilepage(),
-      ];
+    const HomePage(),
+    const MainTopnav(),
+    const DoctorPage(),
+    const Profilepage(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_currentIndex], // Load selected page dynamically
+      body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
-            _currentIndex = index; // Update the current index
+            _currentIndex = index;
           });
         },
         items: const [
@@ -53,18 +50,16 @@ class _MainBotnavState extends State<MainBotnav> {
             label: 'Doctor'
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_outlined),
-            activeIcon: Icon(Icons.calendar_today),
-            label: 'Appointments',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             activeIcon: Icon(Icons.person),
             label: 'Profile',
           ),
         ],
-        selectedItemColor: Colors.blue, // Highlight selected icon
-        unselectedItemColor: Colors.grey, // Dim unselected icons
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        showUnselectedLabels: true,
+        backgroundColor: Colors.white,
+        elevation: 8,
       ),
     );
   }

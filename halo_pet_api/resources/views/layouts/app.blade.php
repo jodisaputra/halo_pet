@@ -12,6 +12,7 @@
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
@@ -42,6 +43,16 @@
                             </li>
                             <li class="nav-item {{ request()->is('shops*') ? 'active' : '' }}">
                                 <a class="nav-link" href="/shops">Shops</a>
+                            </li>
+                            <li class="nav-item {{ request()->is('time-slots*') ? 'active' : '' }}">
+                                <a class="nav-link" href="/doctors">
+                                    <i class="fas fa-clock me-1"></i> Time Slots
+                                </a>
+                            </li>
+                            <li class="nav-item {{ request()->is('appointments/validate*') ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ route('appointments.validate') }}">
+                                    <i class="fas fa-calendar-check me-1"></i> Validate Appointments
+                                </a>
                             </li>
                         @endauth
                     </ul>

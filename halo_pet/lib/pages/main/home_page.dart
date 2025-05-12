@@ -7,6 +7,7 @@ import 'package:halo_pet/pages/sub_pages/shop_page.dart';
 import 'package:halo_pet/services/api_service.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -76,21 +77,23 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return HomeContent(
-      firstName: firstName,
-      lastName: lastName,
-      pickedImage: _pickedImage,
-      profileImage: _profileImage,
-      onProfileTap: () async {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const Profilepage()
-          )
-        );
-        _loadProfileImage();
-      },
-      onImagePick: _pickImage,
+    return Scaffold(
+      body: HomeContent(
+        firstName: firstName,
+        lastName: lastName,
+        pickedImage: _pickedImage,
+        profileImage: _profileImage,
+        onProfileTap: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const Profilepage()
+            )
+          );
+          _loadProfileImage();
+        },
+        onImagePick: _pickImage,
+      ),
     );
   }
 }
@@ -119,9 +122,27 @@ class HomeContent extends StatefulWidget {
 
 class _HomeContentState extends State<HomeContent> {
   Future<void> _refreshHomeData() async {
-    // You can add more refresh logic here if needed
     if (mounted) {
-      setState(() {}); // Triggers rebuild, or call any data reload method
+      setState(() {});
+    }
+  }
+
+  Future<List<dynamic>> _fetchUpcomingAppointments() async {
+    try {
+      final appointments = await ApiService().getAppointments();
+      print('Appointments from API: ' + appointments.toString());
+      // Filter for today and future
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final filtered = appointments.where((a) {
+        final date = DateTime.tryParse(a['appointment_date'] ?? '') ?? today;
+        final slotDate = DateTime(date.year, date.month, date.day);
+        return slotDate.isAtSameMomentAs(today) || slotDate.isAfter(today);
+      }).toList();
+      print('Filtered upcoming appointments: ' + filtered.toString());
+      return filtered;
+    } catch (e) {
+      throw Exception('Failed to load appointments: $e');
     }
   }
 
@@ -289,7 +310,7 @@ class _HomeContentState extends State<HomeContent> {
                   ],
                 ),
                 const SizedBox(height: 32),
-                // Upcoming Appointments (keep your logic, but style as a card)
+                // Upcoming Appointments (from API)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -319,79 +340,102 @@ class _HomeContentState extends State<HomeContent> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Appointment Card (keep your logic, but style as a card)
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(Icons.calendar_today, color: Colors.blue),
-                          ),
-                          const SizedBox(width: 12),
-                          const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Dr. Sarah Johnson',
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                'Veterinarian',
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
+                FutureBuilder<List<dynamic>>(
+                  future: _fetchUpcomingAppointments(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(child: Text('No upcoming appointments.'));
+                    }
+                    final appointments = snapshot.data!;
+                    return Column(
+                      children: appointments.take(3).map<Widget>((a) {
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      const Divider(),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildAppointmentInfo(
-                            icon: Icons.access_time,
-                            text: '10:00 AM',
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(Icons.calendar_today, color: Colors.blue),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          a['doctor']?['name'] ?? 'Doctor',
+                                          style: const TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          a['doctor']?['specialty'] ?? '',
+                                          style: const TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontSize: 14,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              const Divider(),
+                              const SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: _buildAppointmentInfo(
+                                      icon: Icons.access_time,
+                                      text: a['appointment_time'] != null
+                                        ? DateFormat('HH:mm').format(DateTime.tryParse(a['appointment_time']) ?? DateTime.now())
+                                        : '',
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _buildAppointmentInfo(
+                                      icon: Icons.calendar_today,
+                                      text: a['appointment_date'] != null
+                                        ? DateFormat('d MMM yyyy').format(DateTime.tryParse(a['appointment_date']) ?? DateTime.now())
+                                        : '',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                          _buildAppointmentInfo(
-                            icon: Icons.calendar_today,
-                            text: 'March 15, 2024',
-                          ),
-                          _buildAppointmentInfo(
-                            icon: Icons.location_on,
-                            text: 'Clinic A',
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        );
+                      }).toList(),
+                    );
+                  },
                 ),
               ],
             ),
