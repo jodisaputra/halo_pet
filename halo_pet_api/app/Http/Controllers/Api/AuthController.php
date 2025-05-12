@@ -183,4 +183,50 @@ class AuthController extends Controller
             ], 500);
         }
     }
+
+    public function googleLogin(Request $request)
+    {
+        try {
+            $request->validate([
+                'id_token' => 'required|string',
+            ]);
+
+            $client = new \Google_Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
+            if (!$client) {
+                \Log::error('Google client not initialized');
+                return response()->json(['message' => 'Google client configuration error'], 500);
+            }
+
+            $payload = $client->verifyIdToken($request->id_token);
+            if (!$payload) {
+                \Log::error('Invalid Google token');
+                return response()->json(['message' => 'Invalid Google token'], 401);
+            }
+
+            $email = $payload['email'];
+            $name = $payload['name'] ?? '';
+            $avatar = $payload['picture'] ?? null;
+
+            $user = \App\Models\User::firstOrCreate(
+                ['email' => $email],
+                [
+                    'first_name' => $name,
+                    'email_verified_at' => now(),
+                    'password' => \Illuminate\Support\Str::random(32),
+                    'profile_image' => $avatar,
+                    'role' => 'user',
+                ]
+            );
+
+            $token = $user->createToken('GoogleLogin')->accessToken;
+
+            return response()->json([
+                'token' => $token,
+                'user' => $user,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Google login error: ' . $e->getMessage());
+            return response()->json(['message' => 'Google login failed: ' . $e->getMessage()], 500);
+        }
+    }
 }

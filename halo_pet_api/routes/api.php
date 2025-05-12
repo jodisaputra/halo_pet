@@ -37,6 +37,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/google-login', [AuthController::class, 'googleLogin']);
 
 Route::middleware('auth:api')->post('/user/profile', [AuthController::class, 'updateProfile']);
 

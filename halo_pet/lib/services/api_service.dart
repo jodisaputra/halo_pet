@@ -517,4 +517,51 @@ class ApiService {
       'Authorization': 'Bearer $token',
     };
   }
+
+  // Google Login
+  static Future<Map<String, dynamic>> loginWithGoogle(String idToken) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/google-login'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({'id_token': idToken}),
+      );
+
+      print('Google login response status: ${response.statusCode}');
+      print('Google login response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['token'] != null) {
+          // Save token
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('token', data['token']);
+          // Save role if present
+          if (data['user'] != null && data['user']['role'] != null) {
+            await prefs.setString('role', data['user']['role']);
+          }
+          return data;
+        }
+      }
+      
+      // Handle error response
+      final data = jsonDecode(response.body);
+      if (data is Map && data['message'] != null) {
+        throw Exception(data['message']);
+      } else if (data is Map && data['errors'] != null) {
+        throw Exception(data['errors'].toString());
+      } else {
+        throw Exception('Failed to login with Google: ${response.body}');
+      }
+    } catch (e) {
+      print('Error in loginWithGoogle: $e');
+      if (e is FormatException) {
+        throw Exception('Invalid response from server');
+      }
+      rethrow;
+    }
+  }
 } 

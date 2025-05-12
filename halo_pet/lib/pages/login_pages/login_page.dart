@@ -3,6 +3,8 @@ import 'package:halo_pet/pages/main_botnav.dart';
 import 'package:halo_pet/pages/login_pages/register_page.dart';
 import 'package:halo_pet/pages/login_pages/forgot_password_page.dart';
 import 'package:halo_pet/services/api_service.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:halo_pet/constants/AppConfig.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -65,21 +67,64 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _loginWithGoogle() {
+  Future<void> _loginWithGoogle() async {
     setState(() {
       _isLoading = true;
     });
-
-    // Simulate network delay
-    Future.delayed(const Duration(seconds: 1), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainBotnav()),
+    try {
+      print('Starting Google sign-in...');
+      final GoogleSignIn _googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile', 'openid'],
+        signInOption: SignInOption.standard,
+        clientId: AppConfig.googleClientId,
       );
+      
+      final googleUser = await _googleSignIn.signIn();
+      print('Google user: $googleUser');
+      
+      if (googleUser == null) {
+        setState(() { _isLoading = false; });
+        print('User cancelled Google sign-in');
+        return;
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final idToken = googleAuth.idToken;
+      print('Google idToken: $idToken');
+      
+      if (idToken == null) {
+        throw Exception('Failed to get ID token from Google');
+      }
+
+      final result = await ApiService.loginWithGoogle(idToken);
+      print('Backend result: $result');
+      
+      if (result['token'] != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainBotnav()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? 'Google login failed'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Google login error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Google login error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
       setState(() {
         _isLoading = false;
       });
-    });
+    }
   }
 
   @override
