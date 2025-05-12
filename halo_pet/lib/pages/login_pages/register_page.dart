@@ -32,6 +32,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void _register() async {
     if (_formKey.currentState!.validate()) {
+      if (!mounted) return;
       setState(() {
         _isLoading = true;
       });
@@ -46,6 +47,7 @@ class _RegisterPageState extends State<RegisterPage> {
         print(response); // Debug print to check API response
 
         if (response['message'] == 'User registered successfully') {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Registration successful! Please login.'),
@@ -60,6 +62,7 @@ class _RegisterPageState extends State<RegisterPage> {
             );
           });
         } else {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(response['message'] ?? 'Registration failed'),
@@ -68,6 +71,7 @@ class _RegisterPageState extends State<RegisterPage> {
           );
         }
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('An error occurred. Please try again.'),
@@ -75,6 +79,7 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
         );
       } finally {
+        if (!mounted) return;
         setState(() {
           _isLoading = false;
         });

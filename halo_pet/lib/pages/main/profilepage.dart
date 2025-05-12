@@ -40,6 +40,7 @@ class _ProfilepageState extends State<Profilepage> {
   Future<void> _loadUserProfile() async {
     final user = await ApiService.getUser();
     if (user != null) {
+      if (!mounted) return;
       setState(() {
         _firstNameController.text = user['first_name'] ?? '';
         _lastNameController.text = user['last_name'] ?? '';
@@ -83,6 +84,7 @@ class _ProfilepageState extends State<Profilepage> {
   Future<void> _pickImage() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (picked != null) {
+      if (!mounted) return;
       setState(() {
         _pickedImage = File(picked.path);
       });

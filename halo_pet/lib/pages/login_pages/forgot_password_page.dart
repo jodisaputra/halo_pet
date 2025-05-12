@@ -23,6 +23,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   void _resetPassword() async {
     if (_formKey.currentState!.validate()) {
+      if (!mounted) return;
       setState(() {
         _isLoading = true;
       });
@@ -31,10 +32,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         final response = await ApiService.forgotPassword(_emailController.text);
 
         if (response['success'] == true) {
+          if (!mounted) return;
           setState(() {
             _isEmailSent = true;
           });
         } else {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(response['message'] ?? 'Failed to send reset email'),
@@ -43,6 +46,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           );
         }
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('An error occurred. Please try again.'),
@@ -50,6 +54,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           ),
         );
       } finally {
+        if (!mounted) return;
         setState(() {
           _isLoading = false;
         });

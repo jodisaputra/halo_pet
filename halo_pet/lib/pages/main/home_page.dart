@@ -31,6 +31,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadProfileImage() async {
     final user = await ApiService.getUser();
     if (user != null) {
+      if (!mounted) return;
       setState(() {
         firstName = user['first_name'];
         lastName = user['last_name'];
@@ -44,6 +45,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _pickImage() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (picked != null) {
+      if (!mounted) return;
       setState(() {
         _pickedImage = File(picked.path);
       });
@@ -57,6 +59,7 @@ class _HomePageState extends State<HomePage> {
         
         if (response['message'] == 'Profile updated successfully') {
           await _loadProfileImage();
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Profile image updated successfully'),
@@ -65,6 +68,7 @@ class _HomePageState extends State<HomePage> {
           );
         }
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to update profile image: ${e.toString()}'),

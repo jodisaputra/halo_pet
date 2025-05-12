@@ -29,6 +29,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _login() async {
     if (_formKey.currentState!.validate()) {
+      if (!mounted) return;
       setState(() {
         _isLoading = true;
       });
@@ -40,11 +41,13 @@ class _LoginPageState extends State<LoginPage> {
         );
 
         if (response['token'] != null) {
+          if (!mounted) return;
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const MainBotnav()),
           );
         } else {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(response['message'] ?? 'Invalid email or password'),
@@ -53,6 +56,7 @@ class _LoginPageState extends State<LoginPage> {
           );
         }
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('An error occurred. Please try again.'),
@@ -60,6 +64,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         );
       } finally {
+        if (!mounted) return;
         setState(() {
           _isLoading = false;
         });
@@ -68,6 +73,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _loginWithGoogle() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
@@ -83,6 +89,7 @@ class _LoginPageState extends State<LoginPage> {
       print('Google user: $googleUser');
       
       if (googleUser == null) {
+        if (!mounted) return;
         setState(() { _isLoading = false; });
         print('User cancelled Google sign-in');
         return;
@@ -100,11 +107,13 @@ class _LoginPageState extends State<LoginPage> {
       print('Backend result: $result');
       
       if (result['token'] != null) {
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const MainBotnav()),
         );
       } else {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(result['message'] ?? 'Google login failed'),
@@ -114,6 +123,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (e) {
       print('Google login error: $e');
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Google login error: $e'),
@@ -121,6 +131,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     } finally {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
