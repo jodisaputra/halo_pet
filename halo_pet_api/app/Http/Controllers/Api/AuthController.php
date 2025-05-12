@@ -127,6 +127,8 @@ class AuthController extends Controller
                 'gender' => 'nullable|string|max:20',
                 'dob' => 'nullable|date',
                 'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'new_password' => 'nullable|string|min:6',
+                'confirm_password' => 'nullable|string|same:new_password',
             ]);
 
             if ($validator->fails()) {
@@ -135,6 +137,11 @@ class AuthController extends Controller
                     'message' => 'Validation failed',
                     'errors' => $validator->errors()
                 ], 422);
+            }
+
+            // Handle password update
+            if ($request->filled('new_password') && $request->filled('confirm_password')) {
+                $user->password = Hash::make($request->new_password);
             }
 
             // Handle image upload

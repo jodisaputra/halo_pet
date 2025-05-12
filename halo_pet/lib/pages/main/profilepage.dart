@@ -19,8 +19,11 @@ class _ProfilepageState extends State<Profilepage> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   String _profileImage = 'lib/assets/image/profile_picture.png';
   File? _pickedImage;
+  bool _showPasswordFields = false;
 
   @override
   void initState() {
@@ -58,6 +61,8 @@ class _ProfilepageState extends State<Profilepage> {
     _lastNameController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -292,6 +297,71 @@ class _ProfilepageState extends State<Profilepage> {
                             onTap: () => _selectDate(context),
                           ),
                           const SizedBox(height: 24),
+                          // Password Update Section
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Update Password",
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Switch(
+                                value: _showPasswordFields,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _showPasswordFields = value;
+                                    if (!value) {
+                                      _newPasswordController.clear();
+                                      _confirmPasswordController.clear();
+                                    }
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                          if (_showPasswordFields) ...[
+                            const SizedBox(height: 14),
+                            // New Password
+                            TextField(
+                              controller: _newPasswordController,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.grey[100],
+                                labelText: 'New Password',
+                                hintText: 'Enter your new password',
+                                hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                                prefixIcon: const Icon(Icons.lock_outline),
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            // Confirm Password
+                            TextField(
+                              controller: _confirmPasswordController,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.grey[100],
+                                labelText: 'Confirm Password',
+                                hintText: 'Confirm your new password',
+                                hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                                prefixIcon: const Icon(Icons.lock_outline),
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 24),
                           // Update Profile Button
                           SizedBox(
                             width: double.infinity,
@@ -306,6 +376,29 @@ class _ProfilepageState extends State<Profilepage> {
                               ),
                               onPressed: () async {
                                 try {
+                                  // Validate passwords if password fields are shown
+                                  if (_showPasswordFields) {
+                                    if (_newPasswordController.text.isEmpty ||
+                                        _confirmPasswordController.text.isEmpty) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Please fill in all password fields'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                    if (_newPasswordController.text != _confirmPasswordController.text) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('New passwords do not match'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                  }
+
                                   final response = await ApiService.updateProfile(
                                     firstName: _firstNameController.text,
                                     lastName: _lastNameController.text,
@@ -314,10 +407,20 @@ class _ProfilepageState extends State<Profilepage> {
                                     gender: selectedGender,
                                     dob: _dateController.text.isNotEmpty ? _dateController.text : null,
                                     imageFile: _pickedImage,
+                                    newPassword: _showPasswordFields ? _newPasswordController.text : null,
+                                    confirmPassword: _showPasswordFields ? _confirmPasswordController.text : null,
                                   );
                                   
                                   if (response['message'] == 'Profile updated successfully') {
                                     await _loadUserProfile();
+                                    // Clear password fields after successful update
+                                    if (_showPasswordFields) {
+                                      _newPasswordController.clear();
+                                      _confirmPasswordController.clear();
+                                      setState(() {
+                                        _showPasswordFields = false;
+                                      });
+                                    }
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text('Profile updated successfully'),

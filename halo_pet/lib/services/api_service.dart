@@ -132,6 +132,8 @@ class ApiService {
     String? gender,
     String? dob,
     File? imageFile,
+    String? newPassword,
+    String? confirmPassword,
   }) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -154,6 +156,8 @@ class ApiService {
       if (phone != null) request.fields['phone'] = phone;
       if (gender != null) request.fields['gender'] = gender;
       if (dob != null) request.fields['dob'] = dob;
+      if (newPassword != null) request.fields['new_password'] = newPassword;
+      if (confirmPassword != null) request.fields['confirm_password'] = confirmPassword;
       
       // Add image if provided
       if (imageFile != null) {
