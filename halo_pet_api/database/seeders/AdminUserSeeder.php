@@ -14,6 +14,7 @@ class AdminUserSeeder extends Seeder
             [
                 'email' => 'admin@halopet.com',
             ],
+            
             [
                 'first_name' => 'Admin',
                 'last_name' => 'User',

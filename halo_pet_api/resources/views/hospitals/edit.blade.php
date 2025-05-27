@@ -17,7 +17,7 @@
                             <input type="text" name="name" class="form-control" value="{{ $hospital->name }}" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Address</label>
+                            <label class="form-label">Address <small class="text-danger"><i>Fill With Google Maps URL</i></small></label>
                             <input type="text" name="address" class="form-control" value="{{ $hospital->address }}" required>
                         </div>
                         <div class="mb-3">

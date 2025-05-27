@@ -265,7 +265,7 @@ class _HomeContentState extends State<HomeContent> {
                   children: [
                     _serviceCard(
                       icon: Icons.local_hospital,
-                      title: 'Veterinarian',
+                      title: 'Hospital',
                       color: const Color(0xFFD6E7FF),
                       iconColor: Colors.blue,
                       onTap: () {
