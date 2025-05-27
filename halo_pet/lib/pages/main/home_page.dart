@@ -271,7 +271,7 @@ class _HomeContentState extends State<HomeContent> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const HospitalPage()),
+                          MaterialPageRoute(builder: (context) => const HospitalPage(isSubPage: true)),
                         );
                       },
                     ),
@@ -295,7 +295,7 @@ class _HomeContentState extends State<HomeContent> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ShopPage()),
+                          MaterialPageRoute(builder: (context) => const ShopPage(isSubPage: true)),
                         );
                       },
                     ),

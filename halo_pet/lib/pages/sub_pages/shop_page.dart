@@ -4,7 +4,8 @@ import 'package:halo_pet/services/api_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ShopPage extends StatefulWidget {
-  const ShopPage({super.key});
+  final bool isSubPage;
+  const ShopPage({super.key, this.isSubPage = false});
 
   @override
   State<ShopPage> createState() => _ShopPageState();
@@ -134,6 +135,12 @@ class _ShopPageState extends State<ShopPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: widget.isSubPage
+          ? AppBar(
+              title: const Text('Shop'),
+              leading: BackButton(),
+            )
+          : null,
       backgroundColor: const Color(0xFFF8F6FA), // Light background
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -249,6 +256,7 @@ class _ShopPageState extends State<ShopPage> {
                         },
                       ),
                     ),
+      bottomNavigationBar: widget.isSubPage ? null : null, // TODO: Ganti null dengan bottom nav jika ada
     );
   }
 }

@@ -4,7 +4,8 @@ import 'package:halo_pet/services/api_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HospitalPage extends StatefulWidget {
-  const HospitalPage({super.key});
+  final bool isSubPage;
+  const HospitalPage({super.key, this.isSubPage = false});
 
   @override
   State<HospitalPage> createState() => _HospitalPageState();
@@ -134,6 +135,12 @@ class _HospitalPageState extends State<HospitalPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: widget.isSubPage
+          ? AppBar(
+              title: const Text('Hospital'),
+              leading: BackButton(),
+            )
+          : null,
       backgroundColor: const Color(0xFFF8F6FA),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -248,6 +255,7 @@ class _HospitalPageState extends State<HospitalPage> {
                         },
                       ),
                     ),
+      bottomNavigationBar: widget.isSubPage ? null : null, // TODO: Ganti null dengan bottom nav jika ada
     );
   }
 }

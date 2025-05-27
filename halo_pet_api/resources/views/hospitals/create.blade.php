@@ -16,7 +16,7 @@
                             <input type="text" name="name" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Address <small class="text-danger"><i>Fill With Google Maps URL</i></small></label>
+                            <label class="form-label">Address</label>
                             <input type="text" name="address" class="form-control" required>
                         </div>
                         <div class="mb-3">

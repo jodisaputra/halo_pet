@@ -3,7 +3,8 @@ import 'package:halo_pet/pages/sub_pages/hospital_page.dart';
 import 'package:halo_pet/pages/sub_pages/shop_page.dart';
 
 class MedicineTabView extends StatelessWidget {
-  const MedicineTabView({super.key});
+  final bool isSubPage;
+  const MedicineTabView({super.key, this.isSubPage = false});
 
   @override
   Widget build(BuildContext context) {
@@ -13,25 +14,36 @@ class MedicineTabView extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
-          automaticallyImplyLeading: false,
+          automaticallyImplyLeading: isSubPage,
+          leading: isSubPage ? const BackButton() : null,
           title: const Text('Medicines', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           centerTitle: true,
-          bottom: const TabBar(
-            labelColor: Colors.blue,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: Colors.blue,
-            tabs: [
-              Tab(text: 'Hospital'),
-              Tab(text: 'Health Shop'),
-            ],
-          ),
+          bottom: isSubPage
+              ? null
+              : const TabBar(
+                  labelColor: Colors.blue,
+                  unselectedLabelColor: Colors.grey,
+                  indicatorColor: Colors.blue,
+                  tabs: [
+                    Tab(text: 'Hospital'),
+                    Tab(text: 'Health Shop'),
+                  ],
+                ),
         ),
-        body: const TabBarView(
-          children: [
-            HospitalPage(),
-            ShopPage(),
-          ],
-        ),
+        body: isSubPage
+            ? const TabBarView(
+                physics: NeverScrollableScrollPhysics(),
+                children: [
+                  HospitalPage(isSubPage: true),
+                  ShopPage(isSubPage: true),
+                ],
+              )
+            : const TabBarView(
+                children: [
+                  HospitalPage(isSubPage: false),
+                  ShopPage(isSubPage: false),
+                ],
+              ),
       ),
     );
   }
